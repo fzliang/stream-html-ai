@@ -19,10 +19,6 @@
     .log-entry.error {
       border-left-color: #ef4444;
     }
-
-    #app .min-h-screen {
-      height: 100%;
-    }
     
     /* 预览区域动画 - 为所有属性变更添加平滑过渡 */
     #app * {
@@ -65,26 +61,26 @@
     <h1 class="text-3xl font-bold text-gray-800 mb-5">增量 HTML 渲染演示</h1>
     
     <!-- 控制按钮组 -->
-    <div class="flex flex-wrap gap-2 mb-5">
-      <button onclick="demo1()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium">
+    <!-- <div class="flex flex-wrap gap-2 mb-5"> -->
+      <!-- <button onclick="demo1()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium">
         示例: 基础渲染
-      </button>
+      </button> -->
       <!-- <button onclick="demo2()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium">
         示例: 流式文本
       </button>
       <button onclick="demo3()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium">
         示例: 动态表单
       </button> -->
-      <button onclick="demoAI()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium">
+      <!-- <button onclick="demoAI()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium">
         示例: AI 渲染（工具模式）
-      </button>
-      <button onclick="demoAIIncremental()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium">
+      </button> -->
+      <!-- <button onclick="demoAIIncremental()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium">
         示例: AI 渲染（增量模式）
       </button>
       <button onclick="clearApp()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium">
         清空
-      </button>
-    </div>
+      </button> -->
+    <!-- </div> -->
 
     <!-- 输入区域（初始状态和继续对话状态互斥显示） -->
     <div class="flex gap-2 mb-5" id="input-area">
@@ -94,9 +90,9 @@
         placeholder="输入你的需求，例如：创建一个包含标题和段落的文章" 
         class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
       >
-      <button id="generate-btn" onclick="demoAI()" class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed">
+      <!-- <button id="generate-btn" onclick="demoAI()" class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed">
         生成（工具）
-      </button>
+      </button> -->
       <button id="generate-incremental-btn" onclick="demoAIIncremental()" class="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed">
         生成（增量）
       </button>
@@ -106,10 +102,13 @@
       <button id="stop-btn" onclick="stopAI()" disabled class="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed">
         停止
       </button>
+      <button onclick="clearApp()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium">
+        清空
+      </button>
     </div>
 
     <!-- 渲染区域 -->
-    <div id="app" class="relative flex-1 border-2 border-gray-300 rounded-lg bg-white overflow-y-auto mt-5 shadow-sm"></div>
+    <div id="app" class="relative flex-1 border-2 border-gray-300 rounded-lg bg-white overflow-y-auto mt-0 shadow-sm"></div>
   </div>
 
   <!-- 右侧面板 -->
@@ -347,12 +346,20 @@
       const stopBtn = document.getElementById('stop-btn');
       
       // 更新按钮状态：显示生成按钮，隐藏发送按钮
-      generateBtn.disabled = true;
-      generateIncrementalBtn.disabled = true;
-      generateBtn.classList.remove('hidden');
-      generateIncrementalBtn.classList.remove('hidden');
-      continueBtn.classList.add('hidden');
-      stopBtn.disabled = false;
+      if (generateBtn) {
+        generateBtn.disabled = true;
+        generateBtn.classList.remove('hidden');
+      }
+      if (generateIncrementalBtn) {
+        generateIncrementalBtn.disabled = true;
+        generateIncrementalBtn.classList.remove('hidden');
+      }
+      if (continueBtn) {
+        continueBtn.classList.add('hidden');
+      }
+      if (stopBtn) {
+        stopBtn.disabled = false;
+      }
       
       // 更新输入框占位符
       promptInput.placeholder = '输入你的需求，例如：创建一个包含标题和段落的文章';
@@ -381,10 +388,16 @@
         window.currentRenderer = result.renderer;
         
         // 切换到继续对话状态：隐藏生成按钮，显示发送按钮
-        generateBtn.classList.add('hidden');
-        generateIncrementalBtn.classList.add('hidden');
-        continueBtn.classList.remove('hidden');
-        continueBtn.disabled = false;
+        if (generateBtn) {
+          generateBtn.classList.add('hidden');
+        }
+        if (generateIncrementalBtn) {
+          generateIncrementalBtn.classList.add('hidden');
+        }
+        if (continueBtn) {
+          continueBtn.classList.remove('hidden');
+          continueBtn.disabled = false;
+        }
         promptInput.placeholder = '继续输入你的需求...';
         promptInput.focus();
         
@@ -402,9 +415,15 @@
         }
       } finally {
         // 恢复按钮状态
-        generateBtn.disabled = false;
-        generateIncrementalBtn.disabled = false;
-        stopBtn.disabled = true;
+        if (generateBtn) {
+          generateBtn.disabled = false;
+        }
+        if (generateIncrementalBtn) {
+          generateIncrementalBtn.disabled = false;
+        }
+        if (stopBtn) {
+          stopBtn.disabled = true;
+        }
       }
     };
 
@@ -445,12 +464,20 @@
       const stopBtn = document.getElementById('stop-btn');
       
       // 更新按钮状态：显示生成按钮，隐藏发送按钮
-      generateBtn.disabled = true;
-      generateIncrementalBtn.disabled = true;
-      generateBtn.classList.remove('hidden');
-      generateIncrementalBtn.classList.remove('hidden');
-      continueBtn.classList.add('hidden');
-      stopBtn.disabled = false;
+      if (generateBtn) {
+        generateBtn.disabled = true;
+        generateBtn.classList.remove('hidden');
+      }
+      if (generateIncrementalBtn) {
+        generateIncrementalBtn.disabled = true;
+        generateIncrementalBtn.classList.remove('hidden');
+      }
+      if (continueBtn) {
+        continueBtn.classList.add('hidden');
+      }
+      if (stopBtn) {
+        stopBtn.disabled = false;
+      }
       
       // 更新输入框占位符
       promptInput.placeholder = '输入你的需求，例如：创建一个包含标题和段落的文章';
@@ -479,10 +506,16 @@
         window.currentIncrementalRenderer = result.renderer;
         
         // 切换到继续对话状态：隐藏生成按钮，显示发送按钮
-        generateBtn.classList.add('hidden');
-        generateIncrementalBtn.classList.add('hidden');
-        continueBtn.classList.remove('hidden');
-        continueBtn.disabled = false;
+        if (generateBtn) {
+          generateBtn.classList.add('hidden');
+        }
+        if (generateIncrementalBtn) {
+          generateIncrementalBtn.classList.add('hidden');
+        }
+        if (continueBtn) {
+          continueBtn.classList.remove('hidden');
+          continueBtn.disabled = false;
+        }
         promptInput.placeholder = '继续输入你的需求...';
         promptInput.focus();
         
@@ -500,9 +533,15 @@
         }
       } finally {
         // 恢复按钮状态
-        generateBtn.disabled = false;
-        generateIncrementalBtn.disabled = false;
-        stopBtn.disabled = true;
+        if (generateBtn) {
+          generateBtn.disabled = false;
+        }
+        if (generateIncrementalBtn) {
+          generateIncrementalBtn.disabled = false;
+        }
+        if (stopBtn) {
+          stopBtn.disabled = true;
+        }
       }
     };
 
@@ -611,9 +650,15 @@
       const generateBtn = document.getElementById('generate-btn');
       const generateIncrementalBtn = document.getElementById('generate-incremental-btn');
       const continueBtn = document.getElementById('continue-btn');
-      generateBtn.classList.remove('hidden');
-      generateIncrementalBtn.classList.remove('hidden');
-      continueBtn.classList.add('hidden');
+      if (generateBtn) {
+        generateBtn.classList.remove('hidden');
+      }
+      if (generateIncrementalBtn) {
+        generateIncrementalBtn.classList.remove('hidden');
+      }
+      if (continueBtn) {
+        continueBtn.classList.add('hidden');
+      }
       promptInput.placeholder = '输入你的需求，例如：创建一个包含标题和段落的文章';
       // 清空渲染指令
       if (typeof clearCommands === 'function') {
